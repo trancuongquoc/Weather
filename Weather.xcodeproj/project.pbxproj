@@ -83,8 +83,8 @@
 			children = (
 				4EAC68AC20F3404C00C02D61 /* AppDelegate.swift */,
 				4EAC68AE20F3404C00C02D61 /* ViewController.swift */,
-				4EAC68CC20F3410200C02D61 /* DataServices.swift */,
 				4EAC68CE20F343C900C02D61 /* Weather.swift */,
+				4EAC68CC20F3410200C02D61 /* DataServices.swift */,
 				4EAC68B020F3404C00C02D61 /* Main.storyboard */,
 				4EAC68B320F3404C00C02D61 /* Assets.xcassets */,
 				4EAC68B520F3404C00C02D61 /* LaunchScreen.storyboard */,

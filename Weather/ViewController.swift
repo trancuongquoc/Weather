@@ -15,7 +15,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         DataServices.loadWeather { weather in
              let weatherObj = weather
-                print(weatherObj.currentWeather.temp_c)
+                print(weatherObj.singleHourDataPack[0].iconString)
         }
     }
     override func didReceiveMemoryWarning() {

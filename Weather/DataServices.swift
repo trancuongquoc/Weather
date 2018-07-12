@@ -12,7 +12,7 @@ class DataServices {
     
     static func loadWeather(complete: @escaping(WeatherObject) -> Void) {
         
-        let url = URL(string: "http://api.apixu.com/v1/forecast.json?key=2babb7dc670d4296adf44506180301&q=Hanoi")!
+        let url = URL(string: "https://api.darksky.net/forecast/0a7e919279ef03e2c1bb23c71544d118/21.028511,%20105.804817")!
         let urlRequest = URLRequest(url: url)
         
         URLSession.shared.dataTask(with: urlRequest) { (data, _, error) in
@@ -29,7 +29,7 @@ class DataServices {
                 
                 let weatherObject = WeatherObject(dict: object)
                 DispatchQueue.main.async {
-                    complete(weatherObject)
+                    complete(weatherObject!)
                 }
                 
             } catch {
