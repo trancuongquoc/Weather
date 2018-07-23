@@ -11,8 +11,8 @@ import UIKit
 typealias DICT = Dictionary<AnyHashable,Any>
 
 class WeatherObject {
-    var lat: Float = 21.028511
-    var long: Float = 105.804817
+    var lat: Double = 21.028511
+    var long: Double = 105.804817
     
     //dict[currently]
     var summary: String = ""
@@ -27,8 +27,8 @@ class WeatherObject {
     var singleHourDataPack = [HourlyWeatherData]()
     init?(dict: DICT) {
         //object dict
-        let lat = dict["latitude"] as! Float
-        let long = dict["longitude"] as! Float
+        let lat = dict["latitude"] as! Double
+        let long = dict["longitude"] as! Double
         
         let currently = dict["currently"] as! DICT
         // dict[currently]
@@ -63,25 +63,25 @@ class WeatherObject {
 class SingleDayData {
     var time: TimeInterval
     var iconString: String
-    var temperatureMax: Float = 0
+    var todayTempMax: Float = 0
     var maxTemp_c: Int {
         get {
-            return Int((temperatureMax - 32) / 1.8)
+            return Int((todayTempMax - 32) / 1.8)
         }
     }
-    var temperatureMin: Float = 0
+    var todayTempMin: Float = 0
     var minTemp_c: Int {
         get {
-            return Int((temperatureMin - 32) / 1.8)
+            return Int((todayTempMin - 32) / 1.8)
         }
     }
     var sunriseTime: TimeInterval
-    var sunsetTime : TimeInterval
-    var chanceOfRain : Float = 0
-    var humidity : Float = 0
+    var sunsetTime: TimeInterval
+    var chanceOfRain: Float = 0
+    var humidity: Float = 0
     var windSpeed: Float = 0
-    var uvIndex : Float = 0
-
+    var uvIndex: Float = 0
+  
     init(dict: DICT) {
         let time = dict["time"] as! TimeInterval
         let iconString = dict["icon"] as! String
@@ -96,8 +96,8 @@ class SingleDayData {
         
         self.time = time
         self.iconString = iconString
-        self.temperatureMax = temperatureMax
-        self.temperatureMin = temperatureMin
+        self.todayTempMax = temperatureMax
+        self.todayTempMin = temperatureMin
         self.sunriseTime = sunriseTime
         self.sunsetTime = sunsetTime
         self.chanceOfRain = chanceOfRain

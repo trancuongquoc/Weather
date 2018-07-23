@@ -7,10 +7,15 @@
 //
 
 import UIKit
+import MapKit
+import AddressBookUI
 
 class ViewController: UIViewController {
     
-    
+    @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var todayTempMaxLabel: UILabel!
+    @IBOutlet weak var todayTempMinLabel: UILabel!
+    @IBOutlet weak var todayLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var hourForecastCollectionView: UICollectionView!
     @IBOutlet weak var backgroundImage: UIImageView!
@@ -19,16 +24,19 @@ class ViewController: UIViewController {
     @IBOutlet weak var temperature: UILabel!
     var weatherObject: WeatherObject?
     var dailyWeather = [SingleDayData]()
-    
+    var cityNameString: String = ""
+    var searchResult : String?
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.image = UIImage(named: "background")
-        
         DataServices.loadWeather { weather in
             self.weatherObject  = weather
+            let latitude = self.weatherObject?.lat ?? 0
+            let longtitude = self.weatherObject?.long ?? 0
+            self.reverseGeocoding(latitude: latitude, longitude: longtitude)
             self.dailyWeather = weather.singleDayDataPack
-            self.dailyWeather.remove(at: 0)
             self.updateCurrentWeather()
+            self.dailyWeather.remove(at: 0)
             self.hourForecastCollectionView.reloadData()
             self.tableView.reloadData()
         }
@@ -39,12 +47,38 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
+    func reverseGeocoding(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        CLGeocoder().reverseGeocodeLocation(location, completionHandler: {(placemarks, error) -> Void in
+            if error != nil {
+                print(error as Any)
+                return
+            }
+            else if (placemarks?.count ?? 0) > 0 {
+                let pm = placemarks![0]
+                let address = ABCreateStringWithAddressDictionary(pm.addressDictionary!, false)
+                let city = pm.locality ?? ""
+                self.location.text = city
+                print("\n\(city)")
+                if (pm.areasOfInterest?.count ?? 0) > 0 {
+                    let areaOfInterest = pm.areasOfInterest?[0]
+                } else {
+                }
+            }
+        })
+    }
+    
     func updateCurrentWeather() {
-        location.text = "Hanoi"
         summary.text = weatherObject?.summary
         
         let currentTemp_c = weatherObject?.temp_c ?? 0
         temperature.text = "\(currentTemp_c)" + "°"
+        
+        let todayWeatherData = weatherObject?.singleDayDataPack[0]
+        todayLabel.text = todayWeatherData?.time.unixToDateString(dateFormatterDesired: "EEEE")
+        todayTempMaxLabel.text = todayWeatherData?.todayTempMax.todayTempMaxString
+        todayTempMinLabel.text = todayWeatherData?.todayTempMin.todayTempMinString
+        
     }
 }
 
@@ -83,57 +117,50 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let otherCell = tableView.dequeueReusableCell(withIdentifier: "otherinfocell", for: indexPath) as! OtherInfoCell
-        switch indexPath.row {
-        case 7:
+        
+        if indexPath.row == 7  {
             let cell = tableView.dequeueReusableCell(withIdentifier: "info", for: indexPath) as! TodaySummaryCell
             let todaySummary = weatherObject?.todaySummary ?? ""
             cell.todaySummaryTextView.text = "Today: " + todaySummary
             return cell
-        case 8:
-            otherCell.title1.text = "SUNRISE"
-            let sunriseTimeString = weatherObject?.singleDayDataPack[0].sunriseTime.unixToDateString(dateFormatterDesired: "HH:MM")
-            otherCell.value1.text = sunriseTimeString
+        } else if indexPath.row > 7 {
+            let otherCell = tableView.dequeueReusableCell(withIdentifier: "otherinfocell", for: indexPath) as! OtherInfoCell
             
-            otherCell.title2.text = "SUNSET"
-            let sunsetTimeString = weatherObject?.singleDayDataPack[0].sunsetTime.unixToDateString(dateFormatterDesired: "HH:MM")
-            otherCell.value2.text = sunsetTimeString
+            let titles = [ "SUNRISE", "SUNSET", "CHANCE OF RAIN", "HUMIDITY", "WIND", "UV INDEX"]
+            
+            let todayWeatherData = weatherObject?.singleDayDataPack[0]
+            var values = [todayWeatherData?.sunriseTime.sunriseString,
+                          todayWeatherData?.sunsetTime.sunsetString,
+                          todayWeatherData?.chanceOfRain.chainceOfRainString,
+                          todayWeatherData?.humidity.humidityString,
+                          todayWeatherData?.windSpeed.windSpeedString,
+                          todayWeatherData?.uvIndex.uvIndexString]
+            
+            let index = (indexPath.row - 8) * 2
+            otherCell.title1.text = titles[index]
+            otherCell.title2.text = titles[index + 1]
+            
+            otherCell.value1.text = values[index]
+            otherCell.value2.text = values[index + 1]
+            
+            
             return otherCell
-        case 9:
-            let chanceOfRain = weatherObject?.singleDayDataPack[0].chanceOfRain.correctFormat() ?? 0
-            otherCell.title1.text = "CHANCE OF RAIN"
-            otherCell.value1.text = "\(chanceOfRain)" + "%"
+            } else if indexPath.row < 7 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "dailyForecastCell", for: indexPath) as! DailyForecastCell
             
-            let humidity = weatherObject?.singleDayDataPack[0].humidity.correctFormat() ?? 0
-            otherCell.title2.text = "HUMIDITY"
-            otherCell.value2.text = "\(humidity)" + "%"
-            return otherCell
-        case 10:
-            let windSpeed = weatherObject?.singleDayDataPack[0].windSpeed ?? 0
-            otherCell.title1.text = "WIND"
-            otherCell.value1.text = "\(windSpeed)"
+                let dateString = dailyWeather[indexPath.row].time.unixToDateString(dateFormatterDesired: "EEEE")
+                cell.dayLabel.text = dateString
             
-            let uvIndex = weatherObject?.singleDayDataPack[0].uvIndex ?? 0
-            otherCell.title2.text = "UV INDEX"
-            otherCell.value2.text = "\(uvIndex)"
-            return otherCell
-        default:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "dailyForecastCell", for: indexPath) as! DailyForecastCell
+                let iconString = dailyWeather[indexPath.row].iconString
+                cell.weatherImageView.image = UIImage(named: iconString)
             
-            let dateString = dailyWeather[indexPath.row].time.unixToDateString(dateFormatterDesired: "EEEE")
-            cell.dayLabel.text = dateString
+                let highestTemp_c = dailyWeather[indexPath.row].maxTemp_c
+                cell.highestTempLabel.text = "\(highestTemp_c)"
             
-            let iconString = dailyWeather[indexPath.row].iconString
-            cell.weatherImageView.image = UIImage(named: iconString)
-            
-            
-            let highestTemp_c = dailyWeather[indexPath.row].maxTemp_c
-            cell.highestTempLabel.text = "\(highestTemp_c)"
-            
-            let lowestTemp_c = dailyWeather[indexPath.row].minTemp_c
-            cell.lowestTempLabel.text = "\(lowestTemp_c)"
-            return cell
+                let lowestTemp_c = dailyWeather[indexPath.row].minTemp_c
+                cell.lowestTempLabel.text = "\(lowestTemp_c)"
+                return cell
+            }
+          return UITableViewCell()
         }
-        return UITableViewCell()
-    }
 }

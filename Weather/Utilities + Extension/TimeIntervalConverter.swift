@@ -15,6 +15,18 @@ extension TimeInterval {
         dateFormatter.dateFormat = dateFormatterDesired
         return dateFormatter.string(from: date)
     }
+    
+    var sunriseString: String {
+        get {
+            return self.unixToDateString(dateFormatterDesired: "HH:MM")
+        }
+    }
+    
+    var sunsetString : String {
+        get {
+            return self.unixToDateString(dateFormatterDesired: "HH:MM")
+        }
+    }
 }
 
 extension Float {
