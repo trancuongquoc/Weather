@@ -18,11 +18,7 @@ class WeatherObject {
     var summary: String = ""
     var todaySummary: String = ""
     var temp_f: Float = 0
-    var temp_c: Int {
-        get {
-            return Int((temp_f - 32) / 1.8)
-        }
-    }
+   
     var singleDayDataPack = [SingleDayData]()
     var singleHourDataPack = [HourlyWeatherData]()
     init?(dict: DICT) {

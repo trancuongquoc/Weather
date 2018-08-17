@@ -8,9 +8,12 @@
 
 import UIKit
 
+protocol Delegate {
+    func passSearchResult(with result: String)
+}
 class SearchTableViewController: UITableViewController {
 
-    let data = ["New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX",
+    let data = ["Hanoi","New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX",
                 "Philadelphia, PA", "Phoenix, AZ", "San Diego, CA", "San Antonio, TX",
                 "Dallas, TX", "Detroit, MI", "San Jose, CA", "Indianapolis, IN",
                 "Jacksonville, FL", "San Francisco, CA", "Columbus, OH", "Austin, TX",
@@ -18,6 +21,7 @@ class SearchTableViewController: UITableViewController {
     
     var filteredData = [String]()
     let searchController = UISearchController(searchResultsController: nil)
+    var delegate: Delegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,13 +61,12 @@ class SearchTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        navigationController?.popViewController(animated: true)
-    }
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let detailViewController = segue.destination as? ViewController
-        if let index = tableView.indexPathForSelectedRow {
-            detailViewController?.searchResult = data[index.row]
+        var data = self.data[indexPath.row]
+        if searchController.isActive {
+             data = filteredData[indexPath.row]
         }
+        delegate?.passSearchResult(with: data)
+        navigationController?.popViewController(animated: true)
     }
 }
 extension SearchTableViewController: UISearchResultsUpdating {

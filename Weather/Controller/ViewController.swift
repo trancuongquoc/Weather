@@ -24,61 +24,54 @@ class ViewController: UIViewController {
     @IBOutlet weak var temperature: UILabel!
     var weatherObject: WeatherObject?
     var dailyWeather = [SingleDayData]()
-    var cityNameString: String = ""
-    var searchResult : String?
+    var searchResult : String = "Hanoi"
+    var lat: Double = 21.028511
+    var long: Double = 105.804817
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.image = UIImage(named: "background")
-        DataServices.loadWeather { weather in
-            self.weatherObject  = weather
-            let latitude = self.weatherObject?.lat ?? 0
-            let longtitude = self.weatherObject?.long ?? 0
-            self.reverseGeocoding(latitude: latitude, longitude: longtitude)
-            self.dailyWeather = weather.singleDayDataPack
-            self.updateCurrentWeather()
-            self.dailyWeather.remove(at: 0)
-            self.hourForecastCollectionView.reloadData()
-            self.tableView.reloadData()
-        }
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        LocationServices.forwardGeocoding(address: searchResult, callback: { location in
+            self.lat = location.latitude
+            self.long = location.longitude
+            self.loadData()
+        })
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
-    func reverseGeocoding(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
-        let location = CLLocation(latitude: latitude, longitude: longitude)
-        CLGeocoder().reverseGeocodeLocation(location, completionHandler: {(placemarks, error) -> Void in
-            if error != nil {
-                print(error as Any)
-                return
-            }
-            else if (placemarks?.count ?? 0) > 0 {
-                let pm = placemarks![0]
-                let address = ABCreateStringWithAddressDictionary(pm.addressDictionary!, false)
-                let city = pm.locality ?? ""
+    func loadData() {
+        DataServices.loadWeather(lat: lat, long: long, complete: { weather in
+            self.weatherObject  = weather
+            self.weatherObject?.lat = self.lat
+            self.weatherObject?.long = self.long
+            LocationServices.reverseGeocoding(latitude: self.lat, longitude: self.long, callback: { city in
                 self.location.text = city
-                print("\n\(city)")
-                if (pm.areasOfInterest?.count ?? 0) > 0 {
-                    let areaOfInterest = pm.areasOfInterest?[0]
-                } else {
-                }
-            }
+            })
+            self.updateUI()
+            self.dailyWeather = weather.singleDayDataPack
+            self.dailyWeather.remove(at: 0)
+            self.hourForecastCollectionView.reloadData()
+            self.tableView.reloadData()
         })
     }
     
-    func updateCurrentWeather() {
+    func updateUI() {
         summary.text = weatherObject?.summary
         
-        let currentTemp_c = weatherObject?.temp_c ?? 0
-        temperature.text = "\(currentTemp_c)" + "°"
+        let temp_cString = weatherObject?.temp_f.temp_cString ?? "0"
+        temperature.text = temp_cString + "°"
         
         let todayWeatherData = weatherObject?.singleDayDataPack[0]
         todayLabel.text = todayWeatherData?.time.unixToDateString(dateFormatterDesired: "EEEE")
         todayTempMaxLabel.text = todayWeatherData?.todayTempMax.todayTempMaxString
         todayTempMinLabel.text = todayWeatherData?.todayTempMin.todayTempMinString
-        
     }
 }
 
@@ -142,9 +135,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             
             otherCell.value1.text = values[index]
             otherCell.value2.text = values[index + 1]
-            
-            
             return otherCell
+            
             } else if indexPath.row < 7 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "dailyForecastCell", for: indexPath) as! DailyForecastCell
             
@@ -163,4 +155,17 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             }
           return UITableViewCell()
         }
+}
+
+extension ViewController: Delegate {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let destination = segue.destination as? SearchTableViewController {
+            destination.delegate = self
+        }
+    }
+    
+    func passSearchResult(with result: String) {
+        searchResult = result
+        print(searchResult)
+    }
 }

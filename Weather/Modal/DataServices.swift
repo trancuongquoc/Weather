@@ -10,10 +10,10 @@ import Foundation
 
 class DataServices {
     
-    static func loadWeather(complete: @escaping(WeatherObject) -> Void) {
+    static func loadWeather(lat: Double, long: Double, complete: @escaping(WeatherObject) -> Void) {
         
-        let url = URL(string: "https://api.darksky.net/forecast/0a7e919279ef03e2c1bb23c71544d118/21.028511,%20105.804817")!
-        let urlRequest = URLRequest(url: url)
+        let url = URL(string: "https://api.darksky.net/forecast/0a7e919279ef03e2c1bb23c71544d118/" + "\(lat)" + ",%20" + "\(long)" )
+        let urlRequest = URLRequest(url: url!)
         
         URLSession.shared.dataTask(with: urlRequest) { (data, _, error) in
             guard error == nil else {

@@ -29,8 +29,3 @@ extension TimeInterval {
     }
 }
 
-extension Float {
-    func correctFormat() -> Int {
-        return Int(self * 100)
-    }
-}

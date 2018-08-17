@@ -10,6 +10,13 @@ import Foundation
 
 extension Float {
     
+    var temp_cString: String {
+        get {
+            let temp_f = (self - 32) / 1.8
+            return "\(Int(temp_f))"
+        }
+    }
+    
     var chainceOfRainString: String {
         get {
             let chanceOfRainString = "\(Int(self * 100))" + "%"

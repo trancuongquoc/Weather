@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="F9E-mo-BCg">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -354,14 +354,14 @@
                                 </connections>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BzX-vN-aFv">
-                                <rect key="frame" x="345" y="16" width="22" height="22"/>
+                                <rect key="frame" x="345" y="32" width="22" height="22"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="BzX-vN-aFv" secondAttribute="height" multiplier="1:1" id="5bK-hc-msM"/>
                                 </constraints>
                                 <state key="normal" image="search"/>
                                 <connections>
-                                    <segue destination="ERC-3Q-Azm" kind="show" id="eZq-Xd-MWo"/>
+                                    <segue destination="ERC-3Q-Azm" kind="show" id="8Uk-p2-Pkp"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -373,7 +373,7 @@
                             <constraint firstItem="D4T-yM-2Kc" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="B4P-dj-Amh"/>
                             <constraint firstItem="D4T-yM-2Kc" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="ByC-QO-0DL"/>
                             <constraint firstItem="D0m-38-VKa" firstAttribute="top" secondItem="IFs-aA-oC7" secondAttribute="bottom" constant="16" id="F7d-ld-WSF"/>
-                            <constraint firstItem="BzX-vN-aFv" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="16" id="FGf-HG-DbC"/>
+                            <constraint firstItem="BzX-vN-aFv" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="32" id="FGf-HG-DbC"/>
                             <constraint firstItem="D0m-38-VKa" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="HBc-3M-o6I"/>
                             <constraint firstItem="Rsz-OJ-TA7" firstAttribute="top" secondItem="aKf-WY-Www" secondAttribute="bottom" constant="8" id="IfJ-vy-yoW"/>
                             <constraint firstItem="Rsz-OJ-TA7" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="THq-az-jpT"/>
@@ -390,6 +390,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="k94-dA-7pA"/>
                     <connections>
                         <outlet property="backgroundImage" destination="D4T-yM-2Kc" id="cVT-GS-8fO"/>
                         <outlet property="hourForecastCollectionView" destination="aKf-WY-Www" id="YgC-cE-4KO"/>
@@ -404,9 +405,9 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-305" y="80"/>
+            <point key="canvasLocation" x="1728.8" y="79.610194902548727"/>
         </scene>
-        <!--Title-->
+        <!--Search-->
         <scene sceneID="KKw-TD-LRZ">
             <objects>
                 <tableViewController id="ERC-3Q-Azm" customClass="SearchTableViewController" customModule="Weather" customModuleProvider="target" sceneMemberID="viewController">
@@ -429,11 +430,30 @@
                             <outlet property="delegate" destination="ERC-3Q-Azm" id="FHe-cG-obY"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Title" id="Y1M-b1-nmx"/>
+                    <navigationItem key="navigationItem" title="Search" id="Y1M-b1-nmx"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KTP-iH-8B5" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="857" y="-252"/>
+            <point key="canvasLocation" x="2829.5999999999999" y="79.610194902548727"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="qfK-2v-AXC">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="F9E-mo-BCg" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Htv-6F-blL">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="PzG-sI-tT0"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XNu-kU-iMA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="894" y="80"/>
         </scene>
     </scenes>
     <resources>
