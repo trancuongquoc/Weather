@@ -23,15 +23,18 @@ class ViewController: UIViewController {
     @IBOutlet weak var location: UILabel!
     @IBOutlet weak var summary: UILabel!
     @IBOutlet weak var temperature: UILabel!
+    
     var weatherObject: WeatherObject?
     var dailyWeather = [SingleDayData]()
+    
     var searchResult : String = "Hanoi" {
         didSet {
             retrieveWeatherDataFromSearchResult()
         }
     }
     
-    var placesClient: GMSPlacesClient!
+    var resultsViewController: GMSAutocompleteViewController?
+    var searchController: UISearchController?
     
     var locationManager: CLLocationManager = {
         var locationManager = CLLocationManager()
@@ -48,12 +51,17 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.image = UIImage(named: "background")
-    }
-    
-    func getCurrentPlace() {
-        let lat = locationManager.location?.coordinate.latitude
-        let long = locationManager.location?.coordinate.longitude
-        retrieveData(lat: lat!, long: long!)
+        
+        resultsViewController = GMSAutocompleteViewController()
+        resultsViewController?.delegate = self
+        
+        searchController = UISearchController(searchResultsController: resultsViewController)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: (searchController?.searchBar)!)
+        
+        definesPresentationContext = true
+        
+        searchController?.hidesNavigationBarDuringPresentation = false
+        searchController?.modalPresentationStyle = .popover
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,6 +71,12 @@ class ViewController: UIViewController {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    func getCurrentPlace() {
+        let lat = locationManager.location?.coordinate.latitude
+        let long = locationManager.location?.coordinate.longitude
+        retrieveData(lat: lat!, long: long!)
     }
     
     func retrieveWeatherDataFromSearchResult() {
@@ -99,6 +113,12 @@ class ViewController: UIViewController {
         todayLabel.text = todayWeatherData?.time.unixToDateString(dateFormatterDesired: "EEEE")
         todayTempMaxLabel.text = todayWeatherData?.todayTempMax.todayTempMaxString
         todayTempMinLabel.text = todayWeatherData?.todayTempMin.todayTempMinString
+    }
+    
+    @IBAction func autocompleteClicked(_ sender: UIButton) {
+        let autocompleteController = GMSAutocompleteViewController()
+        autocompleteController.delegate = self as GMSAutocompleteViewControllerDelegate
+        present(autocompleteController, animated: true, completion: nil)
     }
 }
 
@@ -184,26 +204,27 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         }
 }
 
-extension ViewController: Delegate {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let destination = segue.destination as? SearchTableViewController {
-            destination.delegate = self
-        }
+extension ViewController: GMSAutocompleteViewControllerDelegate {
+    func viewController(_ viewController: GMSAutocompleteViewController, didAutocompleteWith place: GMSPlace) {
+        searchResult = place.name
+        dismiss(animated: true, completion: nil)
     }
     
-    func passSearchResult(with result: String) {
-        searchResult = result
-        print(searchResult)
+    func viewController(_ viewController: GMSAutocompleteViewController, didFailAutocompleteWithError error: Error) {
+        print("Error: ", error.localizedDescription)
+    }
+    
+    func wasCancelled(_ viewController: GMSAutocompleteViewController) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func didRequestAutocompletePredictions(_ viewController: GMSAutocompleteViewController) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+    }
+    
+    func didUpdateAutocompletePredictions(_ viewController: GMSAutocompleteViewController) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 }
 
-extension ViewController: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let userLocation = locations[0] as CLLocation
-        let lat = userLocation.coordinate.latitude
-        let long = userLocation.coordinate.longitude
-        LocationServices.reverseGeocoding(latitude: lat, longitude: long) { (city) in
-            print(city)
-        }
-    }
-}
+

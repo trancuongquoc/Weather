@@ -12,27 +12,9 @@ import AddressBookUI
 import GooglePlaces
 
 class LocationServices {
-    
-//    placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
-//    if let error = error {
-//    print("Pick Place error: \(error.localizedDescription)")
-//    return
-//    }
-//
-//    if let placeLikelihoodList = placeLikelihoodList {
-//    for likelihood in placeLikelihoodList.likelihoods {
-//    let place = likelihood.place
-//    print("Current Place name \(place.name) at likelihood \(likelihood.likelihood)")
-//    print("Current Place address \(place.formattedAddress)")
-//    print("Current Place attributions \(place.attributions)")
-//    print("Current PlaceID \(place.placeID)")
-//    }
-//    }
-//    })
-    
-    static func getCurrentPlace(placesClient: GMSPlacesClient) -> (lat: Double, long: Double) {
-        var lat: Double = 0
-        var long: Double = 0
+
+    static func getCurrentPlace(placesClient: GMSPlacesClient) {
+
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
             if let error = error {
                 print("Pick Place error: \(error.localizedDescription)")
@@ -42,14 +24,11 @@ class LocationServices {
             if let placeLikelihoodList = placeLikelihoodList {
                     let place = placeLikelihoodList.likelihoods.first?.place
                 if let place = place {
-                    lat = place.coordinate.latitude
-                    long = place.coordinate.longitude
                     print("Current Place name \(place.name)")
-                    print("Current Place address \(place.formattedAddress)")
+                    print("Current Place address \(place.formattedAddress ?? "")")
                 }
             }
         })
-        return (lat, long)
     }
 
     
