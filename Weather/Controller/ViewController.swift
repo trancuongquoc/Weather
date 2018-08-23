@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 import AddressBookUI
+import GooglePlaces
 
 class ViewController: UIViewController {
     
@@ -24,34 +25,60 @@ class ViewController: UIViewController {
     @IBOutlet weak var temperature: UILabel!
     var weatherObject: WeatherObject?
     var dailyWeather = [SingleDayData]()
-    var searchResult : String = "Hanoi"
-    var lat: Double = 21.028511
-    var long: Double = 105.804817
+    var searchResult : String = "Hanoi" {
+        didSet {
+            retrieveWeatherDataFromSearchResult()
+        }
+    }
+    
+    var placesClient: GMSPlacesClient!
+    
+    var locationManager: CLLocationManager = {
+        var locationManager = CLLocationManager()
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.startUpdatingLocation()
+            locationManager.startUpdatingHeading()
+        }
+        return locationManager
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.image = UIImage(named: "background")
     }
     
+    func getCurrentPlace() {
+        let lat = locationManager.location?.coordinate.latitude
+        let long = locationManager.location?.coordinate.longitude
+        retrieveData(lat: lat!, long: long!)
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        LocationServices.forwardGeocoding(address: searchResult, callback: { location in
-            self.lat = location.latitude
-            self.long = location.longitude
-            self.loadData()
-        })
+        getCurrentPlace()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
-    func loadData() {
+    func retrieveWeatherDataFromSearchResult() {
+        LocationServices.forwardGeocoding(address: searchResult, callback: { location in
+            let lat  = location.latitude
+            let long = location.longitude
+            self.retrieveData(lat: lat, long: long)
+        })
+    }
+    
+    func retrieveData(lat: Double, long: Double) {
         DataServices.loadWeather(lat: lat, long: long, complete: { weather in
             self.weatherObject  = weather
-            self.weatherObject?.lat = self.lat
-            self.weatherObject?.long = self.long
-            LocationServices.reverseGeocoding(latitude: self.lat, longitude: self.long, callback: { city in
+            self.weatherObject?.lat = lat
+            self.weatherObject?.long = long
+            LocationServices.reverseGeocoding(latitude: lat, longitude: long, callback: { city in
                 self.location.text = city
             })
             self.updateUI()
@@ -167,5 +194,16 @@ extension ViewController: Delegate {
     func passSearchResult(with result: String) {
         searchResult = result
         print(searchResult)
+    }
+}
+
+extension ViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let userLocation = locations[0] as CLLocation
+        let lat = userLocation.coordinate.latitude
+        let long = userLocation.coordinate.longitude
+        LocationServices.reverseGeocoding(latitude: lat, longitude: long) { (city) in
+            print(city)
+        }
     }
 }
